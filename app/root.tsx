@@ -61,9 +61,11 @@ export default function App() {
       >
         <Box
           sx={{
+            display: "flex",
             width: "100%",
-            height: "100%",
-            maxWidth: "1440px" // if screen is to wide, content will be in a *center
+            height: "100vh",
+            maxWidth: "1440px", // if screen is to wide, content will be in a *center
+            overflow: "hidden",
           }}
         >
           <Outlet />

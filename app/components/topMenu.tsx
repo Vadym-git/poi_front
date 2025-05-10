@@ -5,14 +5,14 @@ import { NavLink } from "react-router";
 
 export default function TopMenu() {
   return (
-    <Box>
+    <>
       <Box
         sx={{
           width: "100%",
-          margin: "10px 0 0 0",
+          padding: "10px 0 0 0",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: "center"
         }}
       >
         <TextField
@@ -33,21 +33,25 @@ export default function TopMenu() {
         </NavLink>
 
         <Box
-            sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 1
-            }}
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 1,
+          }}
         >
           <NavLink to="" style={{ textDecoration: "none", color: "black" }}>
             Statistic
           </NavLink>
+          <Divider orientation="vertical" flexItem />
+          <NavLink to="" style={{ textDecoration: "none", color: "black" }}>
+            Something
+          </NavLink>
+          <Divider orientation="vertical" flexItem />
           <NavLink to="" style={{ textDecoration: "none", color: "black" }}>
             Login
           </NavLink>
         </Box>
       </Box>
-      <Divider orientation="horizontal" flexItem sx={{ margin: "4px 0" }} />
-    </Box>
+      </>
   );
 }

@@ -1,11 +1,12 @@
-import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-
+import { NavLink } from "react-router";
 // Imports for marker icon workaround
-import L from "leaflet";
+import L, { type LatLngTuple } from "leaflet";
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
 import iconUrl from "leaflet/dist/images/marker-icon.png";
 import shadowUrl from "leaflet/dist/images/marker-shadow.png";
+import type { Placemark } from "~/web_api/types";
+import { baseURL } from "~/web_api/apiAxios";
 
 // This is a workaround for Leaflet to find marker icon images
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,18 +17,12 @@ L.Icon.Default.mergeOptions({
 });
 // End of marker icon workaround
 
-// Your type for a marker
-export type marker = {
-  position: [number, number]; // Using a tuple for better precision
-  text: string;
-};
-
 // Default values will be applied if the prop is NOT passed at all (i.e., it's undefined)
 interface MapInterface {
   size?: { height: string; width: string }; // Make size optional for default value
-  center?: [number, number]; // Make center optional
+  center?: LatLngTuple; // Make center optional
   zoom?: number; // Zoom was already optional
-  markers?: marker[]; // Make markers optional
+  markers?: Placemark[]; // Make markers optional
 }
 
 // Using the interface and adding default values during prop destructuring
@@ -52,9 +47,11 @@ export default function Map({
 
       {/* <--- Loop through the markers array and render each marker */}
       {markers.map((marker, index) => (
-        <Marker key={index} position={marker.position}>
+        <Marker key={index} position={[marker.location.coordinates[1], marker.location.coordinates[0]]}>
           <Popup>
-            {marker.text} {/* <--- Use the text from the marker object */}
+            {marker.name}
+            <br/>
+            <NavLink to={`/${marker._id}`}>OPEN</NavLink>
           </Popup>
         </Marker>
       ))}

@@ -1,7 +1,8 @@
 import type { Route } from "./+types/home";
 import { Box, InputAdornment, TextField } from "@mui/material";
-import SinglePoi from "./singlePoi";
 import TopMenu from "~/components/topMenu";
+import { Outlet } from "react-router";
+
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "New React Router App" },
@@ -13,14 +14,29 @@ export default function Home() {
   return (
     <Box
       sx={{
-        width: "100%",
-        height: "100%",
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        width: "100%",
+        height: "100vh",
       }}
     >
-      <TopMenu/>
-      <SinglePoi />
+      <Box
+        sx={{
+          display: "flex",
+          height: "10vh"
+        }}
+      >
+        <TopMenu />
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          width: "100%",
+          height: "90vh"
+        }}
+      >
+        <Outlet />
+      </Box>
     </Box>
   );
 }
