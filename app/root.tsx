@@ -8,6 +8,7 @@ import {
 } from "react-router";
 
 import { Box, CssBaseline } from "@mui/material";
+import { AuthProvider } from "./contexts/authContext";
 
 import type { Route } from "./+types/root";
 
@@ -25,7 +26,7 @@ export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
     href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
-  }
+  },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -50,27 +51,29 @@ export default function App() {
   return (
     <>
       <CssBaseline />
-      {/* general view setting for layouts */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          width: "100vw",
-          height: "100vh",
-        }}
-      >
+      <AuthProvider>
+        {/* general view setting for layouts */}
         <Box
           sx={{
             display: "flex",
-            width: "100%",
+            justifyContent: "center",
+            width: "100vw",
             height: "100vh",
-            maxWidth: "1440px", // if screen is to wide, content will be in a *center
-            overflow: "hidden",
           }}
         >
-          <Outlet />
+          <Box
+            sx={{
+              display: "flex",
+              width: "100%",
+              height: "100vh",
+              maxWidth: "1440px", // if screen is to wide, content will be in a *center
+              overflow: "hidden",
+            }}
+          >
+            <Outlet />
+          </Box>
         </Box>
-      </Box>
+      </AuthProvider>
     </>
   );
 }

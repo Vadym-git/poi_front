@@ -7,11 +7,14 @@ import axios, {
 } from "axios";
 
 import { type ApiResponse, type Placemark } from "./types";
-export const baseURL = "http://localhost:8000/api/";
+export const baseURL = "http://localhost:8000";
+
+const apiPath = "/api";
+const authPath = "/auth";
 
 /**
- * 1. Створюємо окремий екземпляр Axios.
- *    Так зручніше, бо можна задати базовий URL і заголовки один раз.
+ * 1. Create a separate Axios instance.
+ *    This is convenient because we can set the base URL and headers once.
  */
 const axiosClient: AxiosInstance = axios.create({
   baseURL: baseURL,
@@ -21,63 +24,99 @@ const axiosClient: AxiosInstance = axios.create({
 });
 
 /**
- * 2. Допоміжна функція для GET‑запиту.
- *    - Повертає саме T (тобто чистий payload), а не весь ApiResponse.
- *    - Catch перехоплює помилки й перекидає їх далі,
- *      щоб можна було обробити у виклику зверху.
+ * 2. Helper function for GET requests.
+ *    - Returns only the payload T (not the entire ApiResponse).
+ *    - Catches and rethrows errors to be handled by the calling function.
  */
 async function fetchData<T>(url: string): Promise<T> {
-  console.log(url)
+  console.log(url);
   try {
-    // <T> говорить TypeScript’у, який саме тип даних ми очікуємо.
-    const response: AxiosResponse<ApiResponse<T>> =
-      await axiosClient.get<ApiResponse<T>>(url);
+    // <T> tells TypeScript the exact type we expect in the response.
+    const response: AxiosResponse<ApiResponse<T>> = await axiosClient.get<
+      ApiResponse<T>
+    >(url);
 
-    // У нашій схемі бекенду payload лежить у полі data.
+    // According to our backend response schema, the useful data is in the 'data' field.
     return response.data.data;
   } catch (rawError) {
-    // Робимо невеликий каст, щоб мати доступ до полів AxiosError
+    // Cast the error to AxiosError to access its fields
     const error = rawError as AxiosError;
 
-    console.error(
-      `❌ Запит "${url}" завершився помилкою:`,
-      error.message
-    );
-    throw error; // прокидуємо далі, нехай вирішує виклик‑споживач
+    console.error(`❌ Request to "${url}" failed:`, error.message);
+    throw error; // rethrow so the calling component can decide what to do
   }
 }
 
-/**
- * 3. Константи з маршрутами.
- *    Загалом це дрібниця, але так менше шансів на помилку у рядках.
- */
-const PLACEMARKS_PATH = "/placemarks";
+// ================================================  Placemarks  =============================================
 
 /**
- * 4‑A. Отримати ВЕСЬ список плейсмарк.
+ * 3. Constants for endpoint paths.
+ *    Helps avoid typos in repeated string paths.
+ */
+const PLACEMARKS_PATH = apiPath + "/placemarks";
+
+/**
+ * 4-A. Fetch the full list of placemarks.
  */
 export async function fetchPlacemarks(): Promise<Placemark[]> {
-  // Тут повертається тип Placemark[] — бо саме його ми й вказали в <>
+  // Returns a Placemark[] because we declared <Placemark[]> above
   return await fetchData<Placemark[]>(PLACEMARKS_PATH);
 }
 
 /**
- * 4‑B. Отримати деталі ОДНОГО плейсмарк за id.
- *      Якщо щось пішло не так, повертаємо null замість кидати помилку —
- *      так компоненту простіше вирішити, що показати (spinner / alert).
+ * 4-B. Fetch details of a single placemark by ID.
+ *      If the request fails, return null instead of throwing,
+ *      so that the component can show a fallback (e.g. spinner / alert).
  */
 export async function fetchPlacemarkDetails(
   id: string
 ): Promise<Placemark | null> {
-  const url = `${PLACEMARKS_PATH}/${id}`; // "placemarks/42/"
+  const url = `${PLACEMARKS_PATH}/${id}`; // e.g., "/placemarks/42"
 
   try {
     return await fetchData<Placemark>(url);
   } catch (error) {
-    console.error(
-      `❌ Не вдалося отримати плейсмарк із id="${id}".`,
-      error
-    );
+    console.error(`❌ Failed to fetch placemark with id="${id}".`, error);
     return null;
   }
+}
+
+// ==========================================  Auth  ===========================
+
+export async function login(
+  email: string | undefined,
+  password: string
+): Promise<AxiosResponse> {
+  const url = `${baseURL}${authPath}/login`;
+  console.log(url);
+  return await axios.post(
+    url,
+    {
+      email,
+      password,
+    },
+    { withCredentials: true }
+  );
+}
+
+export interface MeResponse {
+  isAuthenticated: boolean;
+  user?: {
+    email: string;
+  };
+}
+
+export async function checkAuth(): Promise<MeResponse> {
+  const url = `${baseURL}${authPath}/me`;
+  console.log(url);
+  const response: AxiosResponse<MeResponse> = await axios.get(url, {
+    withCredentials: true,
+  });
+  return response.data;
+}
+
+export async function logout(): Promise<void> {
+  await axios.post(`${baseURL}${authPath}/logout`, null, {
+    withCredentials: true,
+  });
 }
