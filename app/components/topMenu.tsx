@@ -1,5 +1,12 @@
-import { Box, TextField, InputAdornment } from "@mui/material";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  MenuItem,
+  Select,
+  type SelectChangeEvent,
+} from "@mui/material";
 import Divider from "@mui/material/Divider";
 import { NavLink } from "react-router";
 import { useEffect, useState } from "react";
@@ -9,6 +16,10 @@ import { useAuth } from "../contexts/authContext";
 export default function TopMenu() {
   const { isLoggedIn, setIsLoggedIn } = useAuth();
 
+  // Placeholder for future dropdown handling
+  const handleChange = (event: SelectChangeEvent) => {};
+
+  // Check if the user is authenticated on component mount
   useEffect(() => {
     checkAuth()
       .then((res) => {
@@ -30,19 +41,7 @@ export default function TopMenu() {
           alignItems: "center",
         }}
       >
-        <TextField
-          slotProps={{
-            input: {
-              placeholder: "Search",
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchOutlinedIcon />
-                </InputAdornment>
-              ),
-            },
-          }}
-          variant="outlined"
-        />
+        {/* Logo link to home */}
         <NavLink to="/" style={{ textDecoration: "none", color: "black" }}>
           <img src="/poi_logo.png" width={100} />
         </NavLink>
@@ -51,22 +50,38 @@ export default function TopMenu() {
           sx={{
             display: "flex",
             justifyContent: "space-between",
+            alignItems: "center",
             gap: 1,
           }}
         >
-          <NavLink to="" style={{ textDecoration: "none", color: "black" }}>
-            Statistic
-          </NavLink>
           <Divider orientation="vertical" flexItem />
-          <NavLink to="" style={{ textDecoration: "none", color: "black" }}>
-            Something
-          </NavLink>
-          <Divider orientation="vertical" flexItem />
+
+          {/* Show dropdown only if user is logged in */}
+          {isLoggedIn ? (
+            <FormControl sx={{ minWidth: 120, width: 200 }}>
+              <InputLabel>Add Data</InputLabel>
+              <Select value={""} label="Add Value" onChange={handleChange}>
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                <NavLink to="/add-category">
+                  <MenuItem>Add Category</MenuItem>
+                </NavLink>
+                <NavLink to="/add-placemark">
+                  <MenuItem>Add Place Mark</MenuItem>
+                </NavLink>
+              </Select>
+            </FormControl>
+          ) : (
+            ""
+          )}
+
+          {/* Logout or Login link based on auth status */}
           {isLoggedIn ? (
             <span
               onClick={async () => {
-                await logout(); // виклик API
-                setIsLoggedIn(false); // оновити стан
+                await logout(); // call backend logout
+                setIsLoggedIn(false); // update auth state
               }}
               style={{
                 cursor: "pointer",

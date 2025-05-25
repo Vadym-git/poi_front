@@ -27,16 +27,15 @@ interface MapInterface {
 
 // Using the interface and adding default values during prop destructuring
 export default function Map({
-  size = { height: '500px', width: '100%' }, // <--- Default value for size
-  center = [50.4501, 30.5234],             // <--- Default value for center (Kyiv)
-  zoom = 13,                               // <--- Default value for zoom
-  markers = [],                            // <--- Default value for markers (empty array)
+  size = { height: "500px", width: "100%" }, // <--- Default value for size
+  center = [50.4501, 30.5234], // <--- Default value for center (Kyiv)
+  zoom = 13, // <--- Default value for zoom
+  markers = [], // <--- Default value for markers (empty array)
 }: MapInterface) {
-
   return (
     <MapContainer
       center={center} // <--- Use the center prop (now either passed value or default)
-      zoom={zoom}     // <--- Use the zoom prop (passed or default)
+      zoom={zoom} // <--- Use the zoom prop (passed or default)
       style={{ height: size.height, width: size.width }} // <--- Use the size prop (passed or default)
     >
       {/* TileLayer is responsible for displaying map "tiles" */}
@@ -46,17 +45,34 @@ export default function Map({
       />
 
       {/* <--- Loop through the markers array and render each marker */}
-      {markers.map((marker, index) => (
-        <Marker key={index} position={[marker.location.coordinates[1], marker.location.coordinates[0]]}>
-          <Popup>
-            {marker.name}
-            <br/>
-            <NavLink to={`/${marker._id}`}>OPEN</NavLink>
-          </Popup>
-        </Marker>
-      ))}
-      {/* End of marker rendering */}
+      {Array.isArray(markers) &&
+        markers.length > 0 &&
+        markers.map((marker, index) => {
+          if (
+            !marker?._id ||
+            !marker?.location?.coordinates ||
+            marker.location.coordinates.length < 2
+          ) {
+            return null;
+          }
 
+          return (
+            <Marker
+              key={index}
+              position={[
+                marker.location.coordinates[1],
+                marker.location.coordinates[0],
+              ]}
+            >
+              <Popup>
+                <div style={{ textTransform: "capitalize" }}>{marker.name}</div>
+                <NavLink to={`/${marker._id}`}>OPEN</NavLink>
+              </Popup>
+            </Marker>
+          );
+        })}
+
+      {/* End of marker rendering */}
     </MapContainer>
   );
 }
