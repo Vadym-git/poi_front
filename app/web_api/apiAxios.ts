@@ -14,7 +14,8 @@ export interface MeResponse {
 }
 
 import type { ApiResponse, Placemark, Category } from "./types";
-export const baseURL = "http://localhost:8000";
+export const baseURL =
+  import.meta.env.VITE_API_URL || "https://poi-setu.onrender.com";
 
 const apiPath = "/api";
 const authPath = "/auth";
@@ -80,8 +81,8 @@ export async function fetchCategoryDetails(
 ): Promise<Category | null> {
   const url = `${baseURL}${categoryPath}/${id}`;
   try {
-    const response = await axiosClient.get<Category>(url); // без ApiResponse
-    return response.data; // прямі дані
+    const response = await axiosClient.get<Category>(url);
+    return response.data;
   } catch (error) {
     console.error(`❌ Failed to fetch Category with id="${id}".`, error);
     return null;

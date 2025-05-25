@@ -6,7 +6,7 @@ import {
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { login } from "~/web_api/apiAxios";
+import { baseURL, login } from "~/web_api/apiAxios";
 import { useAuth } from "../contexts/authContext";
 import { NavLink, useNavigate } from "react-router";
 
@@ -47,7 +47,7 @@ export default function CombinedSignInPage() {
 
     // OAuth providers (e.g., Google)
     if (provider.id === "google") {
-      window.location.href = `http://localhost:8000/auth/google`; // Replace with your actual OAuth endpoint
+      window.location.href = `${baseURL}/auth/google`; // Replace with your actual OAuth endpoint
       return { error: null }; // Note: real redirect happens before this returns
     }
 
@@ -67,6 +67,9 @@ export default function CombinedSignInPage() {
         }}
       >
         <SignInPage
+          sx={{
+            minHeight: "100px",
+          }}
           signIn={signIn}
           providers={providers}
           slotProps={{

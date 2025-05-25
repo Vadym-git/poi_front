@@ -1,6 +1,9 @@
 import { useForm } from "react-hook-form";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { register as registerUser } from "../web_api/apiAxios";
+import { useNavigate } from "react-router";
+
+// Define the shape of form data
 type FormData = {
   email: string;
   password: string;
@@ -8,6 +11,8 @@ type FormData = {
 };
 
 export default function RegisterForm() {
+  const navigate = useNavigate();
+  // Initialize React Hook Form
   const {
     register,
     handleSubmit,
@@ -15,9 +20,14 @@ export default function RegisterForm() {
     formState: { errors },
   } = useForm<FormData>();
 
+  // Watch password field for matching confirmation
+  const password = watch("password");
+
+  // Handle form submission
   const onSubmit = async (data: FormData) => {
     try {
       const response = await registerUser(data.email, data.password);
+      navigate("/");
       console.log("✅ Registration successful:", response.data);
     } catch (error: any) {
       console.error(
@@ -26,8 +36,6 @@ export default function RegisterForm() {
       );
     }
   };
-
-  const password = watch("password");
 
   return (
     <Box
@@ -47,6 +55,7 @@ export default function RegisterForm() {
         Registration
       </Typography>
 
+      {/* Email input field with validation */}
       <TextField
         label="Email"
         {...register("email", {
@@ -61,6 +70,7 @@ export default function RegisterForm() {
         fullWidth
       />
 
+      {/* Password input field with validation */}
       <TextField
         label="Password"
         type="password"
@@ -76,6 +86,7 @@ export default function RegisterForm() {
         fullWidth
       />
 
+      {/* Password confirmation field with matching validation */}
       <TextField
         label="Confirm Password"
         type="password"
@@ -88,6 +99,7 @@ export default function RegisterForm() {
         fullWidth
       />
 
+      {/* Submit button */}
       <Button type="submit" variant="contained" fullWidth>
         Register
       </Button>

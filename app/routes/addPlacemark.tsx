@@ -22,6 +22,7 @@ import {
 import { useParams, useNavigate } from "react-router";
 import type { Placemark } from "~/web_api/types";
 
+// Menu properties for the multi-select categories dropdown
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -34,6 +35,7 @@ const MenuProps = {
 };
 
 export default function PlacemarkForm() {
+  // React Hook Form setup
   const {
     register,
     handleSubmit,
@@ -58,6 +60,7 @@ export default function PlacemarkForm() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<any[]>([]);
 
+  // Load categories and placemark details if editing
   useEffect(() => {
     async function loadInitialData() {
       const _categories = await fetchAllCategories();
@@ -66,22 +69,22 @@ export default function PlacemarkForm() {
         const _placemark = await fetchPlacemarkDetails(poiId);
         console.log(_placemark);
         if (_placemark) {
-          reset(_placemark);
+          reset(_placemark); // Fill form with existing data
         }
       }
     }
     loadInitialData();
   }, [poiId, reset]);
 
+  // Submit handler for creating or updating placemark
   const onSubmit = async (data: Placemark) => {
     try {
       if (poiId) {
-        console.log("=====================");
         await updatePlacemark(poiId, data);
       } else {
         await createPlacemark(data);
       }
-      navigate("/");
+      navigate("/"); // Redirect to homepage after save
     } catch (error: any) {
       console.error(
         "❌ Failed to submit placemark:",
@@ -109,6 +112,7 @@ export default function PlacemarkForm() {
         Placemark
       </Typography>
 
+      {/* Name field (required) */}
       <TextField
         label="Name"
         slotProps={{ inputLabel: { shrink: true } }}
@@ -116,6 +120,7 @@ export default function PlacemarkForm() {
         error={!!errors.name}
       />
 
+      {/* Multi-select dropdown for categories */}
       <FormControl fullWidth>
         <InputLabel>Categories</InputLabel>
         <Controller
@@ -146,6 +151,7 @@ export default function PlacemarkForm() {
         />
       </FormControl>
 
+      {/* Other text fields */}
       <TextField
         label="Title"
         slotProps={{ inputLabel: { shrink: true } }}
@@ -169,6 +175,7 @@ export default function PlacemarkForm() {
         {...register("description")}
       />
 
+      {/* Longitude & Latitude inputs */}
       <TextField
         label="Longitude"
         inputProps={{ step: "any" }}
@@ -184,6 +191,7 @@ export default function PlacemarkForm() {
         {...register("location.coordinates.1", { valueAsNumber: true })}
       />
 
+      {/* Image URLs input */}
       <TextField
         label="Image URLs (comma-separated)"
         multiline
@@ -199,6 +207,7 @@ export default function PlacemarkForm() {
         }}
       />
 
+      {/* Submit button */}
       <Button type="submit" variant="contained">
         Save
       </Button>

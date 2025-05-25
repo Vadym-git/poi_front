@@ -40,6 +40,14 @@ export default function SinglePoi({ loaderData }: Route.ComponentProps) {
   const { isLoggedIn, setIsLoggedIn } = useAuth();
   const [placemarks, setPlacemarks] = useState<Placemark[]>();
 
+  useEffect(() => {
+    const placemark = async () => {
+      const poi = await fetchPlacemarkDetails(loaderData.poi?._id);
+      setPoi(poi);
+    };
+    placemark();
+  }, [loaderData.poi?._id]);
+
   const handleImageDel = (img: string) => async () => {
     if (!poi) return;
     const updatedImages = poi.images.filter((i) => i !== img);
@@ -67,7 +75,7 @@ export default function SinglePoi({ loaderData }: Route.ComponentProps) {
       }
     };
 
-    placemarks(); // ✅ Важливо викликати функцію
+    placemarks();
   }, [poi]);
 
   useEffect(() => {
@@ -78,7 +86,6 @@ export default function SinglePoi({ loaderData }: Route.ComponentProps) {
         const response = await axios.get(url);
         const raw = response.data.list;
 
-        // Підготуємо дані на 8 відміток (~24 год)
         const prepared = raw.slice(0, 8).map((item: any) => ({
           time: new Date(item.dt_txt).toLocaleTimeString([], {
             hour: "2-digit",
@@ -87,7 +94,7 @@ export default function SinglePoi({ loaderData }: Route.ComponentProps) {
           temp: item.main.temp,
           humidity: item.main.humidity,
           wind: item.wind.speed,
-          rain: item.rain?.["3h"] || 0, // якщо є дощ, беремо його
+          rain: item.rain?.["3h"] || 0,
         }));
 
         setWeather(prepared);
@@ -99,7 +106,7 @@ export default function SinglePoi({ loaderData }: Route.ComponentProps) {
     if (poi?.location?.coordinates) {
       fetchWeather();
     }
-  }, []);
+  }, [loaderData.poi?._id]);
 
   return (
     <Box
@@ -109,7 +116,6 @@ export default function SinglePoi({ loaderData }: Route.ComponentProps) {
         height: "100%",
       }}
     >
-      {/* Ліва частина з текстом і прокруткою */}
       <Box
         sx={{
           display: "flex",
@@ -258,7 +264,6 @@ export default function SinglePoi({ loaderData }: Route.ComponentProps) {
         />
       </Box>
 
-      {/* Права частина (наприклад, карта та додаткові дані) */}
       <Box
         sx={{
           width: "20%",
@@ -295,4 +300,7 @@ export default function SinglePoi({ loaderData }: Route.ComponentProps) {
       </Box>
     </Box>
   );
+}
+function useParams<T>(): { poiId: any } {
+  throw new Error("Function not implemented.");
 }
